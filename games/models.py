@@ -32,9 +32,35 @@ def board_full(board):
         return False
     return True
 
+def translate_move(board, player, move):
+    """
+    Checks the following conditions:
+     - It is the player's turn
+     - The position is empty
+     board: python representation of the board
+     player: boolean representing player (True=player_1, False=player_2)
+     move: tuple containing the next move. It contains the row and the side to which stack (L or R)
+    """
+    counts = (board.count(True), board.count(False))
+    # If the number of plays on both sides is the same,
+    # it is player_1 turn, otherwise it is player_2's turn
+    if (counts[0] == counts[1]) == player:
+        offset = move[0] * 7
+        subset = board[offset:offset+7]
+        direction = range(7) if move[1] == "L" else range(6, -1, -1)
+        for i in direction:
+            if subset[i] == None:
+                return i
+
 
 # Create your models here.
 class Game(models.Model):
+    """
+    Stores the game state.
+    Avoid using save() after modifying the board in another layer to keep integrity.
+    Use the add_move method instead to add new player movements.
+    """
+
     player_1 = models.CharField(max_length=30)
     player_2 = models.CharField(max_length=30)
     board = models.TextField(default=generate_blank_board)
@@ -65,3 +91,13 @@ class Game(models.Model):
                 output += "\n"
             output += f" {board[i]} "
         print(output)
+
+    def add_move(self, player, new_move):
+        """
+        Check that the move is valid, and if it is, persist it to the database
+        """
+        if move_index := translate_move(self.python_board, player, new_move) is not None:
+            board = self.python_board
+            board[move_index] = player
+            self.board = str(board)
+            self.save()
