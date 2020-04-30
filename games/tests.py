@@ -14,7 +14,7 @@ from games.models import (
 # Create your tests here.
 class GameModelTest(TestCase):
     def setUp(self):
-        self.game = Game()
+        self.game = Game.objects.create()
 
     def test_generate_blank_board(self):
         """
@@ -75,6 +75,19 @@ class GameModelTest(TestCase):
         self.game.add_move(False, (3, "R"))
         game = Game.objects.get(id=self.game.pk)
         self.assertFalse(game.python_board[26])
+
+    def test_add_move_marks_finished_and_winner(self):
+        """
+        add_move/3 marks the game as finished if there is a winner
+        """
+        board = ([True, False] * 25)[:49]
+        board[0] = None
+        self.game.board = str(board)
+        self.game.save()
+        self.game.add_move(True, (0, "R"))
+        game = Game.objects.get(id=self.game.pk)
+        self.assertTrue(game.finished)
+        self.assertTrue(game.winner)
 
     def test_get_next_position(self):
         """

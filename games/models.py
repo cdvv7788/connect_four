@@ -121,6 +121,7 @@ class Game(models.Model):
     player_2 = models.CharField(max_length=30)
     board = models.TextField(default=generate_blank_board)
     finished = models.BooleanField(default=False)
+    winner = models.BooleanField(null=True, default=None)
 
     def __str__(self):
         return "{} vs {}".format(self.player_1, self.player_2)
@@ -130,10 +131,7 @@ class Game(models.Model):
         return parse_board_from_string(self.board)
 
     def check_finished(self):
-        # TODO: Check if there is a winner
-        if board_full(self.python_board):
-            return True
-        return False
+        return board_full(self.python_board)
 
     def _print_board(self):
         """
@@ -156,5 +154,11 @@ class Game(models.Model):
         if trans_move is not None:
             board = self.python_board
             board[trans_move] = player
+            winner = find_winner(board, trans_move)
+            if winner is None:
+                self.finished = self.check_finished()
+            else:
+                self.winner = winner
+                self.finished = True
             self.board = str(board)
             self.save()
