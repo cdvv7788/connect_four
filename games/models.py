@@ -32,6 +32,7 @@ def board_full(board):
         return False
     return True
 
+
 def translate_move(board, player, move):
     """
     Checks the following conditions:
@@ -46,10 +47,13 @@ def translate_move(board, player, move):
     # it is player_1 turn, otherwise it is player_2's turn
     if (counts[0] == counts[1]) == player:
         offset = move[0] * 7
-        subset = board[offset:offset+7]
-        direction = range(7) if move[1] == "L" else range(6, -1, -1)
+        direction = (
+            range(offset, offset + 7)
+            if move[1] == "L"
+            else range(offset + 6, offset - 1, -1)
+        )
         for i in direction:
-            if subset[i] == None:
+            if board[i] == None:
                 return i
 
 
@@ -96,8 +100,9 @@ class Game(models.Model):
         """
         Check that the move is valid, and if it is, persist it to the database
         """
-        if move_index := translate_move(self.python_board, player, new_move) is not None:
+        trans_move = translate_move(self.python_board, player, new_move)
+        if trans_move is not None:
             board = self.python_board
-            board[move_index] = player
+            board[trans_move] = player
             self.board = str(board)
             self.save()

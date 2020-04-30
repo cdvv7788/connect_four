@@ -61,3 +61,14 @@ class GameModelTest(TestCase):
         board = ([True, False] * 25)[:49]
         new_index = translate_move(board, True, (3, "L"))
         self.assertTrue(new_index is None)
+
+    def test_add_move(self):
+        """
+        add_move/3 persists the data to the database if the player and the move are valid
+        """
+        self.game.add_move(True, (3, "R"))
+        game = Game.objects.get(id=self.game.pk)
+        self.assertTrue(game.python_board[27])
+        self.game.add_move(False, (3, "R"))
+        game = Game.objects.get(id=self.game.pk)
+        self.assertFalse(game.python_board[26])
