@@ -1,6 +1,10 @@
 class PickerButton extends React.Component {
   render() {
-    return React.createElement("div", {}, this.props.position);
+    return React.createElement(
+      "div",
+      {},
+      this.props.direction == "L" ? "->" : "<-"
+    );
   }
 }
 
@@ -9,7 +13,11 @@ class Picker extends React.Component {
     let children = [...Array(7).keys()].map((child) => {
       return React.createElement(
         PickerButton,
-        { key: `${this.props.position}-${child}`, position: child },
+        {
+          key: `${this.props.position}-${child}`,
+          position: child,
+          direction: this.props.position,
+        },
         child
       );
     });
