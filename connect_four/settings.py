@@ -122,3 +122,5 @@ CHANNEL_LAYERS = {
         "CONFIG": {"hosts": [("127.0.0.1", 6379)],},
     },
 }
+
+INTERNAL_IPS = ("127.0.0.1",)
