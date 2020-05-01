@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block "content" %}
+<div id="message">The game is loading...</div>
+<pre id="board"></pre>
+
+
+<script>
+    const game_id = window.location.pathname.split("/")[2];
+    const message_dom = document.getElementById("message");
+    const board_dom = document.getElementById("board");
+
+    const gameSocket = new WebSocket(
+        'ws://'
+        + window.location.host
+        + '/ws/game/'
+        + game_id
+        + '/'
+    );
+
+    gameSocket.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+        if (!data.started) {
+            message_dom.innerHTML = "Awaiting for another player to start the game...";
+        }
+        renderBoard(data.board);
+        console.log(data);
+    };
+
+    gameSocket.onclose = function (e) {
+        console.error('Game socket closed unexpectedly');
+    };
+
+    function renderBoard(board) {
+        let output = "";
+        for (var i = 0; i < board.length; i++) {
+            if (i % 7 == 0) {
+                output = output + "\n";
+            }
+            output += ` ${board[i] ? "X" : board[i] === false ? "O" : "-"} `
+        }
+        board_dom.textContent = output
+    }
+
+    //document.querySelector('#chat-message-submit').onclick = function (e) {
+    //    const messageInputDom = document.querySelector('#chat-message-input');
+    //    const message = messageInputDom.value;
+    //    chatSocket.send(JSON.stringify({
+    //        'message': message
+    //    }));
+    //    messageInputDom.value = '';
+    //};
+</script>
+{% endblock "content" %}

@@ -1,5 +1,6 @@
 from django.db import models
 from operator import add
+import json
 
 
 def generate_blank_board():
@@ -34,6 +35,14 @@ def board_full(board):
     return True
 
 
+def next_turn(board):
+    """
+    Checks the board to find who is next
+    """
+    counts = (board.count(True), board.count(False))
+    return counts[0] == counts[1]
+
+
 def translate_move(board, player, move):
     """
     Checks the following conditions:
@@ -43,10 +52,9 @@ def translate_move(board, player, move):
      player: boolean representing player (True=player_1, False=player_2)
      move: tuple containing the next move. It contains the row and the side to which stack (L or R)
     """
-    counts = (board.count(True), board.count(False))
     # If the number of plays on both sides is the same,
     # it is player_1 turn, otherwise it is player_2's turn
-    if (counts[0] == counts[1]) == player:
+    if next_turn(board) == player:
         offset = move[0] * 7
         direction = (
             range(offset, offset + 7)
@@ -117,14 +125,34 @@ class Game(models.Model):
     Use the add_move method instead to add new player movements.
     """
 
-    player_1 = models.CharField(max_length=30)
-    player_2 = models.CharField(max_length=30)
+    player_1 = models.CharField(max_length=30, default="")
+    player_2 = models.CharField(max_length=30, default="")
     board = models.TextField(default=generate_blank_board)
+    started = models.BooleanField(default=False)
     finished = models.BooleanField(default=False)
     winner = models.BooleanField(null=True, default=None)
 
     def __str__(self):
         return "{} vs {}".format(self.player_1, self.player_2)
+
+    def to_json(self):
+        return json.dumps(
+            {
+                "board": self.python_board,
+                "player_1": self.player_1,
+                "player_2": self.player_2,
+                "started": self.started,
+                "finished": self.finished,
+                "winner": self.winner,
+                "next_player": self.get_next_player_turn(),
+            }
+        )
+
+    def get_next_player_turn(self):
+        """
+        Checks the board to find who is next
+        """
+        return next_turn(self.python_board)
 
     @property
     def python_board(self):

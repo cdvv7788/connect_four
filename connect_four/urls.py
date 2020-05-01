@@ -14,6 +14,9 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path
+from games.views import PickUser, GameView
 
 urlpatterns = [
+    path("", PickUser.as_view(), name="home"),
+    path("play/<int:game_id>/", GameView.as_view(), name="game"),
 ]
