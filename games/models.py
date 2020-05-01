@@ -190,3 +190,4 @@ class Game(models.Model):
                 self.finished = True
             self.board = str(board)
             self.save()
+        return self

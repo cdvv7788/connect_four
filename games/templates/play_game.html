@@ -3,12 +3,19 @@
 {% block "content" %}
 <div id="message">The game is loading...</div>
 <pre id="board"></pre>
+<div>
+    <form id="move-form">
+        <input type="text" name="move" id="move-input">
+    </form>
+</div>
 
 
 <script>
     const game_id = window.location.pathname.split("/")[2];
     const message_dom = document.getElementById("message");
     const board_dom = document.getElementById("board");
+    const form_dom = document.getElementById("move-form");
+    const move_dom = document.getElementById("move-input");
 
     const gameSocket = new WebSocket(
         'ws://'
@@ -18,10 +25,34 @@
         + '/'
     );
 
+    form_dom.onsubmit = (e) => {
+        e.preventDefault();
+        const move = move_dom.value;
+        const match = /([0-6]),([R,L])/.exec(move);
+        if (match) {
+            gameSocket.send(JSON.stringify({
+                "move": [match[1], match[2]],
+                "player": getCookie("username")
+            }));
+        }
+        else {
+            message_dom.innerText = "Wrong move, please use the following format: row_number,position. Example: 2,R"
+        }
+    };
+
     gameSocket.onmessage = function (e) {
         const data = JSON.parse(e.data);
+        const currentPlayer = data["next_player"] ? "player_1" : "player_2";
+
         if (!data.started) {
             message_dom.innerHTML = "Awaiting for another player to start the game...";
+        } else { // Game in progress
+            if (data[currentPlayer] === getCookie("username")) {
+                message_dom.textContent = "It is your turn to make a move!";
+            }
+            else {
+                message_dom.textContent = `Now it is ${currentPlayer}'s turn`;
+            }
         }
         renderBoard(data.board);
         console.log(data);
@@ -50,5 +81,22 @@
     //    }));
     //    messageInputDom.value = '';
     //};
+
+    //https://www.w3schools.com/js/js_cookies.asp
+    function getCookie(cname) {
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return "";
+    }
 </script>
 {% endblock "content" %}
