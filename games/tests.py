@@ -89,6 +89,15 @@ class GameModelTest(TestCase):
         self.assertTrue(game.finished)
         self.assertTrue(game.winner)
 
+    def test_add_move_prevents_moves_when_finished(self):
+        """
+        add_move/3 must not allow new moves after the game has been marked as finished
+        """
+        self.game.finished = True
+        self.game.save()
+        self.game.add_move(True, (0, "R"))
+        self.assertIsNone(self.game.python_board[0])
+
     def test_get_next_position(self):
         """
         get_next_position/2 returns the next position in the array to check

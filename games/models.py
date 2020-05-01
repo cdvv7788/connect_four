@@ -179,7 +179,7 @@ class Game(models.Model):
         Check that the move is valid, and if it is, persist it to the database
         """
         trans_move = translate_move(self.python_board, player, new_move)
-        if trans_move is not None:
+        if trans_move is not None and not self.finished:
             board = self.python_board
             board[trans_move] = player
             winner = find_winner(board, trans_move)

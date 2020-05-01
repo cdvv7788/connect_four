@@ -13,7 +13,9 @@ class GameConsumer(WebsocketConsumer):
         async_to_sync(self.channel_layer.group_add)(self.game_id, self.channel_name)
 
         self.accept()
-        self.send(self.game.to_json())
+        async_to_sync(self.channel_layer.group_send)(
+            self.game_id, {"type": "game_message", "message": self.game.to_json()}
+        )
 
     def disconnect(self, close_code):
         async_to_sync(self.channel_layer.group_discard)(self.game_id, self.channel_name)

@@ -12,6 +12,7 @@
 
 <script>
     const game_id = window.location.pathname.split("/")[2];
+    const username = getCookie("username");
     const message_dom = document.getElementById("message");
     const board_dom = document.getElementById("board");
     const form_dom = document.getElementById("move-form");
@@ -32,7 +33,7 @@
         if (match) {
             gameSocket.send(JSON.stringify({
                 "move": [match[1], match[2]],
-                "player": getCookie("username")
+                "player": username
             }));
         }
         else {
@@ -46,14 +47,20 @@
 
         if (!data.started) {
             message_dom.innerHTML = "Awaiting for another player to start the game...";
-        } else { // Game in progress
-            if (data[currentPlayer] === getCookie("username")) {
+        } else if (data["finished"]) {
+            const winner_message = data["winner"] ? `The winner is player 1: ${data["player_1"]}` : data["winner"] === false ? `The winner is player 2: ${data["player_2"]}` : "This game was a draw."
+            message_dom.textContent = `This game has finished. ${winner_message}`
+        }
+        else {
+            // Game in progress
+            if (data[currentPlayer] === username) {
                 message_dom.textContent = "It is your turn to make a move!";
             }
             else {
                 message_dom.textContent = `Now it is ${currentPlayer}'s turn`;
             }
         }
+
         renderBoard(data.board);
         console.log(data);
     };
