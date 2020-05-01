@@ -1,109 +1,25 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block "content" %}
-<div id="message">The game is loading...</div>
+<div id="app"></div>
 <pre id="board"></pre>
 <div>
     <form id="move-form">
         <input type="text" name="move" id="move-input">
     </form>
 </div>
+{% endblock "content" %}
 
+{% block "custom_js" %}
+<script src="{% static "components/message.js" %}"></script>
+<script src="{% static "components/board.js" %}"></script>
+<script src="{% static "components/app.js" %}"></script>
 
 <script>
-    const game_id = window.location.pathname.split("/")[2];
-    const username = getCookie("username");
-    const message_dom = document.getElementById("message");
-    const board_dom = document.getElementById("board");
-    const form_dom = document.getElementById("move-form");
-    const move_dom = document.getElementById("move-input");
-
-    const gameSocket = new WebSocket(
-        'ws://'
-        + window.location.host
-        + '/ws/game/'
-        + game_id
-        + '/'
+    ReactDOM.render(
+        React.createElement(Game, {}, null),
+        document.getElementById("app")
     );
-
-    form_dom.onsubmit = (e) => {
-        e.preventDefault();
-        const move = move_dom.value;
-        const match = /([0-6]),([R,L])/.exec(move);
-        if (match) {
-            gameSocket.send(JSON.stringify({
-                "move": [match[1], match[2]],
-                "player": username
-            }));
-        }
-        else {
-            message_dom.innerText = "Wrong move, please use the following format: row_number,position. Example: 2,R"
-        }
-    };
-
-    gameSocket.onmessage = function (e) {
-        const data = JSON.parse(e.data);
-        const currentPlayer = data["next_player"] ? "player_1" : "player_2";
-
-        if (!data.started) {
-            message_dom.innerHTML = "Awaiting for another player to start the game...";
-        } else if (data["finished"]) {
-            const winner_message = data["winner"] ? `The winner is player 1: ${data["player_1"]}` : data["winner"] === false ? `The winner is player 2: ${data["player_2"]}` : "This game was a draw."
-            message_dom.textContent = `This game has finished. ${winner_message}`
-        }
-        else {
-            // Game in progress
-            if (data[currentPlayer] === username) {
-                message_dom.textContent = "It is your turn to make a move!";
-            }
-            else {
-                message_dom.textContent = `Now it is ${currentPlayer}'s turn`;
-            }
-        }
-
-        renderBoard(data.board);
-        console.log(data);
-    };
-
-    gameSocket.onclose = function (e) {
-        console.error('Game socket closed unexpectedly');
-    };
-
-    function renderBoard(board) {
-        let output = "";
-        for (var i = 0; i < board.length; i++) {
-            if (i % 7 == 0) {
-                output = output + "\n";
-            }
-            output += ` ${board[i] ? "X" : board[i] === false ? "O" : "-"} `
-        }
-        board_dom.textContent = output
-    }
-
-    //document.querySelector('#chat-message-submit').onclick = function (e) {
-    //    const messageInputDom = document.querySelector('#chat-message-input');
-    //    const message = messageInputDom.value;
-    //    chatSocket.send(JSON.stringify({
-    //        'message': message
-    //    }));
-    //    messageInputDom.value = '';
-    //};
-
-    //https://www.w3schools.com/js/js_cookies.asp
-    function getCookie(cname) {
-        var name = cname + "=";
-        var decodedCookie = decodeURIComponent(document.cookie);
-        var ca = decodedCookie.split(';');
-        for (var i = 0; i < ca.length; i++) {
-            var c = ca[i];
-            while (c.charAt(0) == ' ') {
-                c = c.substring(1);
-            }
-            if (c.indexOf(name) == 0) {
-                return c.substring(name.length, c.length);
-            }
-        }
-        return "";
-    }
 </script>
-{% endblock "content" %}
+{% endblock "custom_js" %}
