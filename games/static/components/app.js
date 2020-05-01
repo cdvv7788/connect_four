@@ -48,10 +48,14 @@ class Game extends React.Component {
   render() {
     const message = React.createElement(
       Message,
-      { message: this.state.message },
+      { message: this.state.message, key: "message" },
       null
     );
-    const board = React.createElement(Board, { board: this.state.board }, null);
+    const board = React.createElement(
+      Board,
+      { board: this.state.board, key: "board" },
+      null
+    );
     return [message, board];
   }
 }
