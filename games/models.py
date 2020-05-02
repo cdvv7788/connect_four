@@ -8,7 +8,7 @@ from .board_utils import (
     board_full,
     find_winner,
 )
-from .move_utils import translate_move, next_turn
+from .move_utils import translate_move, next_turn, apply_move
 
 BOARD_SIZE = 7
 GAME_STATUS = [
@@ -150,6 +150,19 @@ class Move(models.Model):
 
     class Meta:
         ordering = ["-timestamp"]
+
+    def reconstruct_up_to(self):
+        """
+        Applies all the moves up to the current move, including it
+        """
+        moves = Move.objects.filter(game=self.game, timestamp__lt=self.timestamp)
+        board = parse_board_from_string(generate_board(BOARD_SIZE))
+        for i in reversed([self] + list(moves)):  # From oldest move
+            player = i.player_name == self.game.player_1
+            # Dangerous eval...needs to be replaced by a proper parser
+            # because it comes from user input, so we have just opened a RCE window
+            board = apply_move(board, player, eval(i.move))
+        return board
 
     def to_dict(self):
         return {
