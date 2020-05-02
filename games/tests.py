@@ -10,7 +10,7 @@ from games.board_utils import (
     find_winner,
     get_next_position,
 )
-from games.move_utils import translate_move, apply_move
+from games.move_utils import translate_move, apply_move, parse_move_from_string
 from games.models import Game, Move, BOARD_SIZE
 
 
@@ -234,9 +234,22 @@ class MoveModelTest(TestCase):
             self.moves.insert(
                 0,
                 Move.objects.create(
-                    game=self.game, move=f'({i}, "R")', player_name=names[i]
+                    game=self.game, move=f"[{i}, 'R']", player_name=names[i]
                 ),
             )
+
+    def test_parse_move_from_string_returns_None(self):
+        """
+        parse_move_from_string/1 returns None if it does not match
+        """
+        self.assertIsNone(parse_move_from_string("[7, 'L']"))
+
+    def test_parse_move_from_string_returns_list(self):
+        """
+        parse_move_from_string/1 returns a list with the row and side
+        if the string is correct
+        """
+        self.assertEqual(parse_move_from_string("[6, 'L']"), [6, "L"])
 
     def test_moves_are_retrieved_in_desc_order(self):
         """

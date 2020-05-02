@@ -8,7 +8,7 @@ from .board_utils import (
     board_full,
     find_winner,
 )
-from .move_utils import translate_move, next_turn, apply_move
+from .move_utils import translate_move, next_turn, apply_move, parse_move_from_string
 
 BOARD_SIZE = 7
 GAME_STATUS = [
@@ -144,7 +144,7 @@ class Move(models.Model):
     """
 
     game = models.ForeignKey(Game, null=False, on_delete=models.CASCADE)
-    move = models.CharField(max_length=5)
+    move = models.CharField(max_length=8)
     player_name = models.CharField(max_length=30)
     timestamp = models.DateTimeField(auto_now_add=True)
 
@@ -159,9 +159,7 @@ class Move(models.Model):
         board = parse_board_from_string(generate_board(BOARD_SIZE))
         for i in reversed([self] + list(moves)):  # From oldest move
             player = i.player_name == self.game.player_1
-            # TODO: Dangerous eval...needs to be replaced by a proper parser
-            # because it comes from user input, so we have just opened a RCE window
-            board = apply_move(board, player, eval(i.move))
+            board = apply_move(board, player, parse_move_from_string(i.move))
         return board
 
     def to_dict(self):

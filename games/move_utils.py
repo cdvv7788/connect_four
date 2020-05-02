@@ -1,4 +1,5 @@
 import copy
+import re
 from .board_utils import next_turn
 
 
@@ -36,3 +37,13 @@ def apply_move(board, player, move):
     trans_move = translate_move(board, player, move)
     board[trans_move] = player
     return board
+
+
+def parse_move_from_string(move):
+    """
+    Parses a string into a tuple of the form (int, str)
+    """
+    exp = re.compile("\[([0-6]),\ '([R, L])'\]")
+    m = exp.match(move)
+    if m:
+        return [int(m.group(1)), m.group(2)]
