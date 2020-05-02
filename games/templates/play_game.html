@@ -18,8 +18,18 @@
 <script src="{% static "components/app.js" %}"></script>
 
 <script>
+    function createWS() {
+        return new WebSocket(
+            "ws://" +
+            window.location.host +
+            "/ws/game/" +
+            window.location.pathname.split("/")[2] +
+            "/"
+        );
+    }
+
     ReactDOM.render(
-        React.createElement(Game, { username: getCookie("username") }, null),
+        React.createElement(Game, { username: getCookie("username"), gameSocket: createWS() }, null),
         document.getElementById("app")
     );
 

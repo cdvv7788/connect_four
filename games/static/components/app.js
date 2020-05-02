@@ -1,5 +1,3 @@
-const game_id = window.location.pathname.split("/")[2];
-
 class Game extends React.Component {
   constructor(props) {
     super(props);
@@ -7,7 +5,7 @@ class Game extends React.Component {
     this.handleMove = this.handleMove.bind(this);
   }
   handleMove(move) {
-    this.state.gameSocket.send(
+    this.props.gameSocket.send(
       JSON.stringify({
         move: move.split(","),
         player: this.props.username,
@@ -16,10 +14,7 @@ class Game extends React.Component {
   }
   componentDidMount() {
     const component = this;
-    const gameSocket = new WebSocket(
-      "ws://" + window.location.host + "/ws/game/" + game_id + "/"
-    );
-    gameSocket.onmessage = function (e) {
+    this.props.gameSocket.onmessage = function (e) {
       const data = JSON.parse(e.data);
       const currentPlayer = data["next_player"] ? "player_1" : "player_2";
 
@@ -50,10 +45,9 @@ class Game extends React.Component {
       }
       component.setState({ board: data.board });
     };
-    gameSocket.onclose = function (e) {
+    this.props.gameSocket.onclose = function (e) {
       console.error("Game socket closed unexpectedly");
     };
-    this.setState({ gameSocket: gameSocket });
   }
   render() {
     const message = React.createElement(
