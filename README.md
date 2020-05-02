@@ -21,10 +21,16 @@ This game uses websockets to coordinate both clients.
 
 To start the game, you will need [Docker Compose](https://docs.docker.com/compose/).
 
-Once you have it installed, running the following command should suffice:
+Once you have it installed, you need to create a `.env` file at the root:
+
+```
+SECRET_KEY="my_secret_key"
+```
+
+After that, running the following command should suffice:
 
 ```
 make compose
 ```
 
-After this, you should be able to access the game by going to `http://localhost:9000`
+Now you should be able to access the game by going to `http://localhost:9000`
