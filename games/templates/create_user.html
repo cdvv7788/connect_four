@@ -1,7 +1,9 @@
 {% extends "base.html" %} {% block "content" %}
-<form action="/" method="POST">
-    {% csrf_token %}
-    <label for="player-name">Player Name</label>
-    <input type="text" maxlength="30" name="player-name">
-</form>
-{% endblock "content" %}
+<div class="text-center">Please tell us your name. We will pair you with someone else that wants to play!</div>
+<div class="text-center">
+    <form action="/" method="POST">
+        {% csrf_token %}
+        <input type="text" maxlength="30" name="player-name" class="rounded border-blue-400 border-2" autofocus>
+    </form>
+    {% endblock "content" %}
+</div>
