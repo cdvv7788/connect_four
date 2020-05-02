@@ -14,25 +14,34 @@ function BoardState(props) {
   return "";
 }
 
-function Board(props) {
-  const boardState = React.createElement(
-    BoardState,
-    { board: props.board, key: "board-state" },
-    null
-  );
-  const leftPicker = React.createElement(
-    Picker,
-    { position: "L", key: "picker-l" },
-    null
-  );
-  const rightPicker = React.createElement(
-    Picker,
-    { position: "R", key: "picker-r" },
-    null
-  );
-  return React.createElement(
-    "div",
-    { className: "flex flex-row items-center justify-center" },
-    [leftPicker, boardState, rightPicker]
-  );
+class Board extends React.Component {
+  constructor(props) {
+    super(props);
+    this.handleMove = this.handleMove.bind(this);
+  }
+  handleMove(move) {
+    this.props.onMove(move);
+  }
+  render() {
+    const boardState = React.createElement(
+      BoardState,
+      { board: this.props.board, key: "board-state" },
+      null
+    );
+    const leftPicker = React.createElement(
+      Picker,
+      { position: "L", key: "picker-l", onMove: this.handleMove },
+      null
+    );
+    const rightPicker = React.createElement(
+      Picker,
+      { position: "R", key: "picker-r", onMove: this.handleMove },
+      null
+    );
+    return React.createElement(
+      "div",
+      { className: "flex flex-row items-center justify-center" },
+      [leftPicker, boardState, rightPicker]
+    );
+  }
 }

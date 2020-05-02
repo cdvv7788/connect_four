@@ -4,6 +4,15 @@ class Game extends React.Component {
   constructor(props) {
     super(props);
     this.state = { message: "Game is loading..." };
+    this.handleMove = this.handleMove.bind(this);
+  }
+  handleMove(move) {
+    this.state.gameSocket.send(
+      JSON.stringify({
+        move: move.split(","),
+        player: this.props.username,
+      })
+    );
   }
   componentDidMount() {
     const component = this;
@@ -29,7 +38,7 @@ class Game extends React.Component {
         });
       } else {
         // Game in progress
-        if (data[currentPlayer] === username) {
+        if (data[currentPlayer] === component.props.username) {
           component.setState({
             message: "It is your turn to make a move!",
           });
@@ -39,12 +48,12 @@ class Game extends React.Component {
           });
         }
       }
-      console.log(data);
       component.setState({ board: data.board });
     };
     gameSocket.onclose = function (e) {
       console.error("Game socket closed unexpectedly");
     };
+    this.setState({ gameSocket: gameSocket });
   }
   render() {
     const message = React.createElement(
@@ -54,9 +63,14 @@ class Game extends React.Component {
     );
     const board = React.createElement(
       Board,
-      { board: this.state.board, key: "board" },
+      { board: this.state.board, key: "board", onMove: this.handleMove },
       null
     );
-    return [message, board];
+    const currentPlayer = React.createElement(
+      Message,
+      { message: `Playing as: ${this.props.username}`, key: "current-player" },
+      null
+    );
+    return [message, board, currentPlayer];
   }
 }
