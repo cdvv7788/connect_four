@@ -47,9 +47,13 @@ class Board extends React.Component {
   constructor(props) {
     super(props);
     this.handleMove = this.handleMove.bind(this);
+    this.handleReplay = this.handleReplay.bind(this);
   }
   handleMove(move) {
     this.props.onMove(move);
+  }
+  handleReplay(id) {
+    this.props.onReplay(id);
   }
   render() {
     const boardState = React.createElement(
@@ -71,7 +75,6 @@ class Board extends React.Component {
       { position: "R", key: "picker-r", onMove: this.handleMove },
       null
     );
-
     return React.createElement(
       "div",
       { className: "flex flex-row items-center justify-center" },

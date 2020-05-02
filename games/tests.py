@@ -227,19 +227,36 @@ class GameModelTest(TestCase):
 
 class MoveModelTest(TestCase):
     def setUp(self):
-        self.game = Game.objects.create()
+        self.game = Game.objects.create(player_1="test")
+        names = ["test", "test2", "test"]
+        self.moves = []
+        for i in range(len(names)):
+            self.moves.insert(
+                0,
+                Move.objects.create(
+                    game=self.game, move=f'({i}, "R")', player_name=names[i]
+                ),
+            )
 
     def test_moves_are_retrieved_in_desc_order(self):
         """
         When querying moves, they must be ordered in descending order by default
         by the timestamp field (newest first)
         """
-        moves = map(
-            lambda x: Move.objects.create(game=self.game, move=(x, "R")), range(3)
-        )
         filtered_moves = Move.objects.filter(game=self.game)
         for i in range(len(filtered_moves)):
-            self.assertEqual(moves[i].id, filtered_moves[i].id)
+            self.assertEqual(self.moves[i].id, filtered_moves[i].id)
+
+    def test_reconstruct_up_to(self):
+        """
+        Reconstructing the board up to a certain play works correctly
+        """
+        reconstructed = self.moves[0].reconstruct_up_to()
+        board = parse_board_from_string(generate_board(BOARD_SIZE))
+        board[6] = True
+        board[13] = False
+        board[20] = True
+        self.assertEqual(board, reconstructed)
 
 
 class GameManagerTest(TestCase):
