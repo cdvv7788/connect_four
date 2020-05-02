@@ -9,7 +9,11 @@ function BoardState(props) {
         props.board[i] ? "X" : props.board[i] === false ? "O" : "-"
       } `;
     }
-    return React.createElement("pre", { className: "text-center p-4" }, output);
+    return React.createElement(
+      "pre",
+      { className: "text-center p-4 shadow" },
+      output
+    );
   }
   return "";
 }
@@ -38,10 +42,15 @@ class Board extends React.Component {
       { position: "R", key: "picker-r", onMove: this.handleMove },
       null
     );
+    const moveList = React.createElement(
+      MoveList,
+      { key: "move-list", moves: this.props.moves },
+      null
+    );
     return React.createElement(
       "div",
       { className: "flex flex-row items-center justify-center" },
-      [leftPicker, boardState, rightPicker]
+      [leftPicker, boardState, rightPicker, moveList]
     );
   }
 }

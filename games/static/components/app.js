@@ -1,7 +1,7 @@
 class Game extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { message: "Game is loading..." };
+    this.state = { message: "Game is loading...", moves: [] };
     this.handleMove = this.handleMove.bind(this);
   }
   handleMove(move) {
@@ -43,7 +43,7 @@ class Game extends React.Component {
           });
         }
       }
-      component.setState({ board: data.board });
+      component.setState({ board: data.board, moves: data.moves });
     };
     this.props.gameSocket.onclose = function (e) {
       console.error("Game socket closed unexpectedly");
@@ -57,7 +57,12 @@ class Game extends React.Component {
     );
     const board = React.createElement(
       Board,
-      { board: this.state.board, key: "board", onMove: this.handleMove },
+      {
+        board: this.state.board,
+        key: "board",
+        onMove: this.handleMove,
+        moves: this.state.moves,
+      },
       null
     );
     const currentPlayer = React.createElement(

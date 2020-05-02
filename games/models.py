@@ -145,6 +145,7 @@ class Game(models.Model):
                 "finished": self.finished,
                 "winner": self.winner,
                 "next_player": self.get_next_player_turn(),
+                "moves": [x.to_dict() for x in Move.objects.filter(game=self)],
             }
         )
 
@@ -189,5 +190,31 @@ class Game(models.Model):
                 self.winner = winner
                 self.finished = True
             self.board = str(board)
+
+            # Save move and board
+            player_name = self.player_1 if player else self.player_2
+            Move.objects.create(game=self, move=new_move, player_name=player_name)
             self.save()
         return self
+
+
+class Move(models.Model):
+    """
+    This class stores the moves for the game.
+    This will be useful to display a list of moves to the users.
+    """
+
+    game = models.ForeignKey(Game, null=False, on_delete=models.CASCADE)
+    move = models.CharField(max_length=5)
+    player_name = models.CharField(max_length=30)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-timestamp"]
+
+    def to_dict(self):
+        return {
+            "player_name": self.player_name,
+            "move": self.move,
+            "timestamp": self.timestamp.isoformat(),
+        }
