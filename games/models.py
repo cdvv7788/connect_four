@@ -1,6 +1,7 @@
 from django.db import models
 from operator import add
 import json
+import copy
 
 
 def generate_blank_board():
@@ -64,6 +65,18 @@ def translate_move(board, player, move):
         for i in direction:
             if board[i] == None:
                 return i
+
+
+def apply_move(board, player, move):
+    """
+    This is similar to Game's add move, but it does not validate any conditions based on the state.
+    It simply applies the moves to the given board for the given player, if the movement is possible.
+    If the movement is not possible, the TypeError that is raised is intentionally left there.
+    """
+    board = copy.copy(board)
+    trans_move = translate_move(board, player, move)
+    board[trans_move] = player
+    return board
 
 
 def get_next_position(position, direction):
@@ -217,4 +230,5 @@ class Move(models.Model):
             "player_name": self.player_name,
             "move": self.move,
             "timestamp": self.timestamp.isoformat(),
+            "id": self.id,
         }

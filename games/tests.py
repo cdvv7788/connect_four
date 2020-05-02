@@ -2,6 +2,7 @@ from django.test import TestCase
 import random
 from games.models import (
     Game,
+    Move,
     generate_blank_board,
     parse_board_from_string,
     board_full,
@@ -9,6 +10,7 @@ from games.models import (
     get_next_position,
     scan,
     find_winner,
+    apply_move,
 )
 
 # Create your tests here.
@@ -98,6 +100,23 @@ class GameModelTest(TestCase):
         self.game.add_move(True, (0, "R"))
         self.assertIsNone(self.game.python_board[0])
 
+    def test_apply_move_raises_key_error(self):
+        """
+        When the movement is not possible, this method will raise a TypeError
+        This can be improved later, but for now it will suffice
+        """
+        board = self.game.python_board
+        with self.assertRaises(TypeError):
+            apply_move(board, False, (1, "R"))
+
+    def test_apply_move_works_with_valid_move(self):
+        """
+        When a board and a valid move for that given board is sent, a new board with
+        the applied move is returned
+        """
+        board = self.game.python_board
+        self.assertTrue(apply_move(board, True, (1, "R"))[13])
+
     def test_get_next_position(self):
         """
         get_next_position/2 returns the next position in the array to check
@@ -169,3 +188,20 @@ class GameModelTest(TestCase):
         self.assertEqual(find_winner(board, 31), player_1)
         self.assertEqual(find_winner(board, 39), player_1)
         self.assertEqual(find_winner(board, 43), None)
+
+
+class MoveModelTest(TestCase):
+    def setUp(self):
+        self.game = Game.objects.create()
+
+    def test_moves_are_retrieved_in_desc_order(self):
+        """
+        When querying moves, they must be ordered in descending order by default
+        by the timestamp field (newest first)
+        """
+        moves = map(
+            lambda x: Move.objects.create(game=self.game, move=(x, "R")), range(3)
+        )
+        filtered_moves = Move.objects.filter(game=self.game)
+        for i in range(len(filtered_moves)):
+            self.assertEqual(moves[i].id, filtered_moves[i].id)
