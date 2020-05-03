@@ -11,7 +11,7 @@ class PickerButton extends React.Component {
       "span",
       {
         onClick: this.handleClick,
-        className: "dot dot-hover bg-green-500 p-5 rounded-lg leading-null",
+        className: "dot dot-hover bg-green-500 rounded-lg leading-null",
       },
       null
     );

@@ -41,7 +41,7 @@ class MoveList extends React.Component {
       React.createElement(
         "div",
         {
-          className: "p-2 h-64 overflow-scroll shadow flex flex-col w-3/12",
+          className: "p-2 h-64 overflow-scroll shadow flex flex-col md-w-3/12",
           key: "move-list-items",
         },
         options
