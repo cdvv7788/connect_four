@@ -107,7 +107,7 @@ class GameModelTest(TestCase):
         """
         add_move/3 must not allow new moves after the game has been marked as finished
         """
-        self.game.finished = True
+        self.game.status = "FINISHED"
         self.game.save()
         self.game.add_move(True, (0, "R"))
         self.assertIsNone(self.game.python_board[0])

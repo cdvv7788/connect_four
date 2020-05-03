@@ -12,20 +12,33 @@ from .board_utils import (
 from .move_utils import translate_move, next_turn
 
 BOARD_SIZE = 7
+GAME_STATUS = [
+    ("PENDING", "Pending"),
+    ("STARTED", "Started"),
+    ("FINISHED", "Finished"),
+]
 
 
 class GameManager(models.Manager):
+    def create(self, **kwargs):
+        """
+        Override the method to generate a board with the BOARD_SIZE
+        Lambdas and closures don't play well with django migrations
+        """
+        kwargs["board"] = generate_board(BOARD_SIZE)
+        return super().create(**kwargs)
+
     def make_seat(self, player_name):
         """
         Looks for empty seats to occupy. Create a new game if
         no suitable game is found.
         """
-        empty_games = self.filter(finished=False, player_2="")
+        empty_games = self.filter(~Q(status="FINISHED")).filter(player_2="")
         game = None
         if empty_games.exists():
             game = empty_games.first()
             game.player_2 = player_name
-            game.started = True
+            game.status = "STARTED"
             game.save()
         else:
             game = self.create(player_1=player_name)
@@ -36,7 +49,7 @@ class GameManager(models.Manager):
         """
         Finds a game for the player and joins it
         """
-        unfinished_games = self.filter(finished=False)
+        unfinished_games = self.filter(~Q(status="FINISHED"))
         current_games = unfinished_games.filter(
             Q(player_1=player_name) | Q(player_2=player_name)
         )
@@ -57,9 +70,10 @@ class Game(models.Model):
 
     player_1 = models.CharField(max_length=30, default="")
     player_2 = models.CharField(max_length=30, default="")
-    board = models.TextField(default=board_generator(BOARD_SIZE))
-    started = models.BooleanField(default=False)
-    finished = models.BooleanField(default=False)
+    board = models.TextField(default="")
+    status = models.CharField(
+        default=GAME_STATUS[0][0], max_length=8, choices=GAME_STATUS
+    )
     winner = models.BooleanField(null=True, default=None)
     objects = GameManager()
 
@@ -90,6 +104,14 @@ class Game(models.Model):
     def python_board(self):
         return parse_board_from_string(self.board)
 
+    @property
+    def finished(self):
+        return self.status == "FINISHED"
+
+    @property
+    def started(self):
+        return self.status == "STARTED"
+
     def check_finished(self):
         return board_full(self.python_board)
 
@@ -103,10 +125,10 @@ class Game(models.Model):
             board[trans_move] = player
             winner = find_winner(board, trans_move)
             if winner is None:
-                self.finished = self.check_finished()
+                self.status = "FINISHED" if self.check_finished() else self.status
             else:
                 self.winner = winner
-                self.finished = True
+                self.status = "FINISHED"
             self.board = pickle_board(board)
 
             # Save move and board
