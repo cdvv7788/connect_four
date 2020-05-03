@@ -1,18 +1,44 @@
+/**
+ * Given an element, defines what character to return
+ */
+function parseElement(element) {
+  let props;
+  console.log(element);
+  switch (element) {
+    case true:
+      props = { className: "dot bg-blue-600" };
+      break;
+    case false:
+      props = { className: "dot bg-red-600" };
+      break;
+    default:
+      props = { className: "dot bg-green-100" };
+  }
+  return React.createElement("span", props, null);
+}
+
 function BoardState(props) {
   if (props.board) {
-    let output = "";
-    for (var i = 0; i < props.board.length; i++) {
-      if (i % 7 == 0 && i != 0) {
-        output = output + "\n";
-      }
-      output += ` ${
-        props.board[i] ? "X" : props.board[i] === false ? "O" : "-"
-      } `;
+    let items = [];
+    for (i = 0; i < props.board.length; i++) {
+      items.push(
+        React.createElement(
+          "div",
+          {
+            className: "bg-red-100 rounded-full",
+            key: `element-${i}`,
+          },
+          parseElement(props.board[i])
+        )
+      );
     }
     return React.createElement(
-      "pre",
-      { className: "text-center p-4 shadow" },
-      output
+      "div",
+      {
+        className:
+          "grid grid-flow-row grid-cols-7 grid-rows-7 gap-2 bg-green-500 p-5 rounded-lg leading-null",
+      },
+      items
     );
   }
   return "";
@@ -29,7 +55,11 @@ class Board extends React.Component {
   render() {
     const boardState = React.createElement(
       BoardState,
-      { board: this.props.board, key: "board-state" },
+      {
+        board: this.props.board,
+        key: "board-state",
+        className: "bg-green-500",
+      },
       null
     );
     const leftPicker = React.createElement(
