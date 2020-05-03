@@ -8,18 +8,25 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Game',
+            name="Game",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('player_1', models.CharField(max_length=30)),
-                ('player_2', models.CharField(max_length=30)),
-                ('board', models.TextField(default=games.models.generate_blank_board)),
-                ('finished', models.BooleanField(default=False)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("player_1", models.CharField(max_length=30)),
+                ("player_2", models.CharField(max_length=30)),
+                ("board", models.TextField(default=games.models.generate_board)),
+                ("finished", models.BooleanField(default=False)),
             ],
         ),
     ]

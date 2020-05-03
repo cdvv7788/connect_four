@@ -1,29 +1,39 @@
 from django.db import models
 from operator import add
 import json
+import pickle
+import base64
 import copy
 
 
-def generate_blank_board():
+def generate_board(board=None):
     """
-    Generates a blank board.
+    Generates a blank board if no argument is passed.
+    Pickles the passed board if one is passed.
+    Returns a base64 representation to be able to store it in the db (utf-8 encoding).
     None means that the position is empty
     True means player_1 picked that position
     False means player_2 picked that position
     """
-    return str([None] * 7 * 7)
+    if board is None:
+        output = pickle.dumps([None] * 7 * 7)
+    else:
+        output = pickle.dumps(board)
+    return base64.b64encode(output).decode("utf-8")
 
 
 def parse_board_from_string(board):
     """
     Parses the board back to python
-    eval is a dirty way to do this, but the window it opens for
+    pickle is a dirty way to do this, as the window it opens for
     arbitrary code execution is troublesome. The board can be parsed
     with more strict validation and parsing rules or it can be stored in a more
-    suitable format (like postgres arrays).
+    suitable format (like postgres arrays)
+    For now, using pickle as it is slightly better than directly using eval
     For the sake of this exercise, I will use this method.
     """
-    return eval(board)
+    board = base64.b64decode(board.encode())
+    return pickle.loads(board)
 
 
 def board_full(board):
@@ -140,7 +150,7 @@ class Game(models.Model):
 
     player_1 = models.CharField(max_length=30, default="")
     player_2 = models.CharField(max_length=30, default="")
-    board = models.TextField(default=generate_blank_board)
+    board = models.TextField(default=generate_board)
     started = models.BooleanField(default=False)
     finished = models.BooleanField(default=False)
     winner = models.BooleanField(null=True, default=None)
@@ -202,7 +212,7 @@ class Game(models.Model):
             else:
                 self.winner = winner
                 self.finished = True
-            self.board = str(board)
+            self.board = generate_board(board)
 
             # Save move and board
             player_name = self.player_1 if player else self.player_2

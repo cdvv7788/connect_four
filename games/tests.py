@@ -1,9 +1,10 @@
 from django.test import TestCase
 import random
+import pickle
 from games.models import (
     Game,
     Move,
-    generate_blank_board,
+    generate_board,
     parse_board_from_string,
     board_full,
     translate_move,
@@ -18,12 +19,24 @@ class GameModelTest(TestCase):
     def setUp(self):
         self.game = Game.objects.create()
 
-    def test_generate_blank_board(self):
+    def test_generate_board(self):
         """
-        generate_blank_board/0 returns a str with a board filled with 7*7 None values
+        generate_board/1 returns a binary string representation with a board filled with 7*7 None values
         """
-        board = generate_blank_board()
-        self.assertEqual(board.count("None"), 49)
+        board = generate_board()
+        self.assertEqual(parse_board_from_string(board).count(None), 49)
+
+    def test_generate_board_with_existing_board(self):
+        """
+        generate_board/1 parses board if one is passed, instead of generating a blank one
+        """
+        board = self.game.python_board
+        board[0] = True
+        board[10] = False
+        board = generate_board(board)
+        self.assertEqual(parse_board_from_string(board).count(True), 1)
+        self.assertEqual(parse_board_from_string(board).count(False), 1)
+        self.assertEqual(parse_board_from_string(board).count(None), 47)
 
     def test_parse_board_from_string(self):
         """
@@ -84,7 +97,7 @@ class GameModelTest(TestCase):
         """
         board = ([True, False] * 25)[:49]
         board[0] = None
-        self.game.board = str(board)
+        self.game.board = generate_board(board)
         self.game.save()
         self.game.add_move(True, (0, "R"))
         game = Game.objects.get(id=self.game.pk)
