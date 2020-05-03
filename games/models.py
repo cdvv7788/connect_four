@@ -54,19 +54,6 @@ class Game(models.Model):
     def check_finished(self):
         return board_full(self.python_board)
 
-    def _print_board(self):
-        """
-        Internal method to debug board state
-        Prints the current board to stdout
-        """
-        output = ""
-        board = self.python_board
-        for i in range(len(board)):
-            if i % 7 == 0:
-                output += "\n"
-            output += f" {board[i]} "
-        print(output)
-
     def add_move(self, player, new_move):
         """
         Check that the move is valid, and if it is, persist it to the database
