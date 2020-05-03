@@ -2,6 +2,7 @@ from django.test import TestCase
 import random
 import pickle
 from games.board_utils import (
+    pickle_board,
     generate_board,
     parse_board_from_string,
     board_full,
@@ -10,7 +11,7 @@ from games.board_utils import (
     get_next_position,
 )
 from games.move_utils import translate_move, apply_move
-from games.models import Game, Move
+from games.models import Game, Move, BOARD_SIZE
 
 # Create your tests here.
 class GameModelTest(TestCase):
@@ -21,7 +22,7 @@ class GameModelTest(TestCase):
         """
         generate_board/1 returns a binary string representation with a board filled with 7*7 None values
         """
-        board = generate_board()
+        board = generate_board(BOARD_SIZE)
         self.assertEqual(parse_board_from_string(board).count(None), 49)
 
     def test_generate_board_with_existing_board(self):
@@ -31,7 +32,7 @@ class GameModelTest(TestCase):
         board = self.game.python_board
         board[0] = True
         board[10] = False
-        board = generate_board(board)
+        board = pickle_board(board)
         self.assertEqual(parse_board_from_string(board).count(True), 1)
         self.assertEqual(parse_board_from_string(board).count(False), 1)
         self.assertEqual(parse_board_from_string(board).count(None), 47)
@@ -95,7 +96,7 @@ class GameModelTest(TestCase):
         """
         board = ([True, False] * 25)[:49]
         board[0] = None
-        self.game.board = generate_board(board)
+        self.game.board = pickle_board(board)
         self.game.save()
         self.game.add_move(True, (0, "R"))
         game = Game.objects.get(id=self.game.pk)
@@ -132,25 +133,25 @@ class GameModelTest(TestCase):
         """
         get_next_position/2 returns the next position in the array to check
         """
-        self.assertEqual(get_next_position(26, (-1, 0)), 25),
-        self.assertEqual(get_next_position(26, (-1, 1)), 32),
-        self.assertEqual(get_next_position(26, (-1, -1)), 18),
-        self.assertEqual(get_next_position(26, (1, 0)), 27),
-        self.assertEqual(get_next_position(26, (1, 1)), 34),
-        self.assertEqual(get_next_position(26, (1, -1)), 20),
-        self.assertEqual(get_next_position(26, (0, 1)), 33),
-        self.assertEqual(get_next_position(26, (0, -1)), 19),
+        self.assertEqual(get_next_position(26, (-1, 0), BOARD_SIZE), 25),
+        self.assertEqual(get_next_position(26, (-1, 1), BOARD_SIZE), 32),
+        self.assertEqual(get_next_position(26, (-1, -1), BOARD_SIZE), 18),
+        self.assertEqual(get_next_position(26, (1, 0), BOARD_SIZE), 27),
+        self.assertEqual(get_next_position(26, (1, 1), BOARD_SIZE), 34),
+        self.assertEqual(get_next_position(26, (1, -1), BOARD_SIZE), 20),
+        self.assertEqual(get_next_position(26, (0, 1), BOARD_SIZE), 33),
+        self.assertEqual(get_next_position(26, (0, -1), BOARD_SIZE), 19),
 
     def test_get_next_position_edges(self):
         """
         get_next_position/2 returns None if it reaches an edge
         """
-        self.assertEqual(get_next_position(27, (1, 0)), None)
-        self.assertEqual(get_next_position(27, (1, 1)), None)
-        self.assertEqual(get_next_position(21, (-1, 0)), None)
-        self.assertEqual(get_next_position(21, (-1, -1)), None)
-        self.assertEqual(get_next_position(42, (1, 1)), None)
-        self.assertEqual(get_next_position(0, (1, -1)), None)
+        self.assertEqual(get_next_position(27, (1, 0), BOARD_SIZE), None)
+        self.assertEqual(get_next_position(27, (1, 1), BOARD_SIZE), None)
+        self.assertEqual(get_next_position(21, (-1, 0), BOARD_SIZE), None)
+        self.assertEqual(get_next_position(21, (-1, -1), BOARD_SIZE), None)
+        self.assertEqual(get_next_position(42, (1, 1), BOARD_SIZE), None)
+        self.assertEqual(get_next_position(0, (1, -1), BOARD_SIZE), None)
 
     def test_scan_counts_properly(self):
         """

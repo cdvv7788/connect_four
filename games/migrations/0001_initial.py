@@ -25,7 +25,14 @@ class Migration(migrations.Migration):
                 ),
                 ("player_1", models.CharField(max_length=30)),
                 ("player_2", models.CharField(max_length=30)),
-                ("board", models.TextField(default=games.models.generate_board)),
+                (
+                    "board",
+                    models.TextField(
+                        default=games.board_utils.board_generator(
+                            games.models.BOARD_SIZE
+                        )
+                    ),
+                ),
                 ("finished", models.BooleanField(default=False)),
             ],
         ),

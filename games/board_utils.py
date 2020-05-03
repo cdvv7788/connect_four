@@ -3,19 +3,29 @@ import pickle
 import base64
 
 
-def generate_board(board=None):
+def board_generator(board_size):
+    def closure():
+        return generate_board(board_size)
+
+    return closure
+
+
+def generate_board(size):
     """
     Generates a blank board if no argument is passed.
-    Pickles the passed board if one is passed.
-    Returns a base64 representation to be able to store it in the db (utf-8 encoding).
     None means that the position is empty
     True means player_1 picked that position
     False means player_2 picked that position
     """
-    if board is None:
-        output = pickle.dumps([None] * 7 * 7)
-    else:
-        output = pickle.dumps(board)
+    return pickle_board([None] * size * size)
+
+
+def pickle_board(board):
+    """
+    Pickles the passed board
+    Returns a base64 representation to be able to store it in the db (utf-8 encoding).
+    """
+    output = pickle.dumps(board)
     return base64.b64encode(output).decode("utf-8")
 
 
@@ -36,7 +46,7 @@ def parse_board_from_string(board):
 def board_full(board):
     """
     Checks that all of the positions are filled
-    board: python_parsed board (7x7 list)
+    board: python_parsed board
     """
     if None in board:
         return False
@@ -51,16 +61,21 @@ def next_turn(board):
     return counts[0] == counts[1]
 
 
-def get_next_position(position, direction):
+def get_next_position(position, direction, board_size):
     """
     Given a position, find the next position in the given direction
     """
-    pos_2d = (position % 7, position // 7)
+    pos_2d = (position % board_size, position // board_size)
     next_2d = list(map(add, pos_2d, direction))
-    if next_2d[0] > 6 or next_2d[0] < 0 or next_2d[1] > 6 or next_2d[1] < 0:
+    if (
+        next_2d[0] >= board_size
+        or next_2d[0] < 0
+        or next_2d[1] >= board_size
+        or next_2d[1] < 0
+    ):
         return None
     else:
-        return next_2d[1] * 7 + next_2d[0]
+        return next_2d[1] * board_size + next_2d[0]
 
 
 def scan(board, direction, position, player, count=0):
@@ -68,7 +83,10 @@ def scan(board, direction, position, player, count=0):
     Scans the board in the given position until a None, an edge or a different player piece is found
     direction: 2d array that indicates the direction to scan. I.E. (1,1) is top right diagonal
     """
-    next_position = get_next_position(position, direction)
+    board_size = int(
+        len(board) ** 0.5
+    )  # Board is always squared, so the sqrt of the length will give us the size
+    next_position = get_next_position(position, direction, board_size)
     if next_position is not None:
         if board[next_position] == player:
             count = scan(board, direction, next_position, player, count)

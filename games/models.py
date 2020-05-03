@@ -1,12 +1,16 @@
 from django.db import models
 import json
 from .board_utils import (
+    board_generator,
+    pickle_board,
     generate_board,
     parse_board_from_string,
     board_full,
     find_winner,
 )
 from .move_utils import translate_move, next_turn
+
+BOARD_SIZE = 7
 
 
 # Create your models here.
@@ -19,7 +23,7 @@ class Game(models.Model):
 
     player_1 = models.CharField(max_length=30, default="")
     player_2 = models.CharField(max_length=30, default="")
-    board = models.TextField(default=generate_board)
+    board = models.TextField(default=board_generator(BOARD_SIZE))
     started = models.BooleanField(default=False)
     finished = models.BooleanField(default=False)
     winner = models.BooleanField(null=True, default=None)
@@ -68,7 +72,7 @@ class Game(models.Model):
             else:
                 self.winner = winner
                 self.finished = True
-            self.board = generate_board(board)
+            self.board = pickle_board(board)
 
             # Save move and board
             player_name = self.player_1 if player else self.player_2
