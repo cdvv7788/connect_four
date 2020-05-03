@@ -30,19 +30,22 @@ class MoveList extends React.Component {
     });
     const title = React.createElement(
       "h2",
-      { key: "move-list-title", className: "p-2 ml-10" },
-      "Move List"
+      { key: "move-list-title", className: "p-2" },
+      "Review Moves"
     );
     //options.unshift(title);
     React.createElement("div", {}, title);
     const items = React.createElement(
       "div",
-      {
-        className:
-          "ml-10 p-2 h-64 overflow-scroll shadow flex flex-col text-center",
-        key: "move-list-items",
-      },
-      options
+      { className: "flex justify-center" },
+      React.createElement(
+        "div",
+        {
+          className: "p-2 h-64 overflow-scroll shadow flex flex-col w-3/12",
+          key: "move-list-items",
+        },
+        options
+      )
     );
     const cont = React.createElement("div", { className: "text-center" }, [
       title,

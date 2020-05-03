@@ -71,11 +71,7 @@ class Board extends React.Component {
       { position: "R", key: "picker-r", onMove: this.handleMove },
       null
     );
-    const moveList = React.createElement(
-      MoveList,
-      { key: "move-list", moves: this.props.moves },
-      null
-    );
+
     return React.createElement(
       "div",
       { className: "flex flex-row items-center justify-center" },

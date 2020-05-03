@@ -75,6 +75,11 @@ class Game extends React.Component {
       { message: `Playing as: ${this.props.username}`, key: "current-player" },
       null
     );
-    return [message, board, currentPlayer];
+    const moveList = React.createElement(
+      MoveList,
+      { key: "move-list", moves: this.state.moves },
+      null
+    );
+    return [message, board, currentPlayer, moveList];
   }
 }
