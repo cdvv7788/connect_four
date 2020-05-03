@@ -9,6 +9,8 @@ RUN apt-get update \
 RUN pip install --upgrade pip &&\
     pip install --trusted-host pypi.python.org -r requirements.txt
 
+RUN python manage.py migrate
+
 EXPOSE 8000
 
 CMD ["python", "manage.py", "runserver", "0:8000"]
