@@ -1,6 +1,5 @@
 from django.views.generic import TemplateView
 from django.shortcuts import render, redirect, reverse
-from django.db.models import Q
 from .helpers import set_cookie
 from .models import Game
 
@@ -20,23 +19,7 @@ class PickUser(TemplateView):
 
     def post(self, request):
         player_name = request.POST["player-name"]
-        current_games = Game.objects.filter(
-            Q(player_1=player_name) | Q(player_2=player_name)
-        ).filter(finished=False)
-        if len(current_games) > 0:
-            current_game = current_games[0]
-        else:
-            current_games = Game.objects.filter(player_2="", finished=False)
-            if (
-                len(current_games) > 0
-            ):  # Found a game with room. Add player to that game
-                current_game = current_games[0]
-                current_game.player_2 = player_name
-                current_game.started = True
-                current_game.save()
-            else:
-                current_game = Game.objects.create(player_1=player_name)
-
+        current_game = Game.objects.find_game(player_name)
         response = redirect(reverse("game", kwargs={"game_id": current_game.id}))
         set_cookie(response, "username", player_name)
         return response

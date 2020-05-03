@@ -217,3 +217,67 @@ class MoveModelTest(TestCase):
         filtered_moves = Move.objects.filter(game=self.game)
         for i in range(len(filtered_moves)):
             self.assertEqual(moves[i].id, filtered_moves[i].id)
+
+
+class GameManagerTest(TestCase):
+    def test_make_seat_finds_empty_seat(self):
+        """
+        make_seat/2 finds an empty seat if there is one
+        """
+        game = Game.objects.create(player_1="test1")
+        found_game = Game.objects.make_seat("test2")
+        self.assertEqual(found_game.player_2, "test2")
+        self.assertEqual(found_game.id, game.id)
+
+    def test_make_seat_creates_game(self):
+        """
+        make_seat/2 creates a new game if no empty seat is found
+        """
+        game = Game.objects.create(player_1="test1", player_2="test2")
+        new_game = Game.objects.make_seat("test1")
+        self.assertEqual(new_game.player_1, "test1")
+        self.assertEqual(new_game.player_2, "")
+        self.assertNotEqual(game.id, new_game)
+
+    def test_find_game_no_active(self):
+        """
+        find_game/2 finds a suitable game to join for a given player if there is no active game
+        """
+        player_name = "player_1"
+        new_game = Game.objects.find_game(player_name)
+        self.assertEqual(new_game.player_1, player_name)
+        self.assertEqual(new_game.player_2, "")
+
+    def test_find_game_empty_seats(self):
+        """
+        find_game/2 finds a suitable game to join for a given player if there are games with empty seats 
+        """
+        player_name = "player_1"
+        Game.objects.create(player_1="test")
+        new_game = Game.objects.find_game(player_name)
+        self.assertEqual(new_game.player_1, "test")
+        self.assertEqual(new_game.player_2, player_name)
+
+    def test_find_game_active_player_1(self):
+        """
+        find_game/2 finds a suitable game to join if the player is already participating in a game
+        as player_1
+        """
+        player_name = "player_1"
+        game = Game.objects.create(player_1=player_name, player_2="test")
+        found_game = Game.objects.find_game(player_name)
+        self.assertEqual(found_game.player_1, player_name)
+        self.assertEqual(found_game.player_2, "test")
+        self.assertEqual(found_game.id, game.id)
+
+    def test_find_game_active_player_2(self):
+        """
+        find_game/2 finds a suitable game to join if the player is already participating in a game
+        as player_1
+        """
+        player_name = "player_2"
+        game = Game.objects.create(player_2=player_name, player_1="test")
+        found_game = Game.objects.find_game(player_name)
+        self.assertEqual(found_game.player_2, player_name)
+        self.assertEqual(found_game.player_1, "test")
+        self.assertEqual(found_game.id, game.id)

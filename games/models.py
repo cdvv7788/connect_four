@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 import json
 from .board_utils import (
     board_generator,
@@ -11,6 +12,39 @@ from .board_utils import (
 from .move_utils import translate_move, next_turn
 
 BOARD_SIZE = 7
+
+
+class GameManager(models.Manager):
+    def make_seat(self, player_name):
+        """
+        Looks for empty seats to occupy. Create a new game if
+        no suitable game is found.
+        """
+        empty_games = self.filter(finished=False, player_2="")
+        game = None
+        if empty_games.exists():
+            game = empty_games.first()
+            game.player_2 = player_name
+            game.started = True
+            game.save()
+        else:
+            game = self.create(player_1=player_name)
+
+        return game
+
+    def find_game(self, player_name):
+        """
+        Finds a game for the player and joins it
+        """
+        unfinished_games = self.filter(finished=False)
+        current_games = unfinished_games.filter(
+            Q(player_1=player_name) | Q(player_2=player_name)
+        )
+        if current_games.exists():
+            current_game = current_games.first()
+        else:
+            current_game = self.make_seat(player_name)
+        return current_game
 
 
 # Create your models here.
@@ -27,6 +61,7 @@ class Game(models.Model):
     started = models.BooleanField(default=False)
     finished = models.BooleanField(default=False)
     winner = models.BooleanField(null=True, default=None)
+    objects = GameManager()
 
     def __str__(self):
         return "{} vs {}".format(self.player_1, self.player_2)
