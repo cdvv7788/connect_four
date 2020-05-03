@@ -3,13 +3,6 @@ import pickle
 import base64
 
 
-def board_generator(board_size):
-    def closure():
-        return generate_board(board_size)
-
-    return closure
-
-
 def generate_board(size):
     """
     Generates a blank board if no argument is passed.

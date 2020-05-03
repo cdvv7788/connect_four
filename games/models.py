@@ -2,7 +2,6 @@ from django.db import models
 from django.db.models import Q
 import json
 from .board_utils import (
-    board_generator,
     pickle_board,
     generate_board,
     parse_board_from_string,
