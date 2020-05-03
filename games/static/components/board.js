@@ -3,7 +3,6 @@
  */
 function parseElement(element) {
   let props;
-  console.log(element);
   switch (element) {
     case true:
       props = { className: "dot bg-blue-600" };

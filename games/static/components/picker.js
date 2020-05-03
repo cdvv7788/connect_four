@@ -8,9 +8,12 @@ class PickerButton extends React.Component {
   }
   render() {
     return React.createElement(
-      "button",
-      { onClick: this.handleClick },
-      this.props.direction == "L" ? "->" : "<-"
+      "span",
+      {
+        onClick: this.handleClick,
+        className: "dot dot-hover bg-green-500 p-5 rounded-lg leading-null",
+      },
+      null
     );
   }
 }
@@ -32,10 +35,18 @@ class Picker extends React.Component {
           move: `${child},${this.props.position}`,
           direction: this.props.position,
           onMove: this.handleMove,
+          className: "dot bg-yellow-800 p-5",
         },
         child
       );
     });
-    return React.createElement("div", { className: "flex flex-col" }, children);
+    return React.createElement(
+      "div",
+      {
+        className:
+          "grid grid-flow-row grid-cols-1 grid-rows-7 gap-2 p-2 bg-green-400",
+      },
+      children
+    );
   }
 }

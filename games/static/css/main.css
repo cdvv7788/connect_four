@@ -5,6 +5,10 @@
   display: inline-block;
 }
 
+.dot-hover:hover {
+  background-color: rgba(246, 173, 85, var(--bg-opacity));
+}
+
 .leading-null {
   line-height: 0;
 }
