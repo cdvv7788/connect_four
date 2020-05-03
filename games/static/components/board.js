@@ -80,7 +80,7 @@ class Board extends React.Component {
     return React.createElement(
       "div",
       { className: "flex flex-row items-center justify-center" },
-      [leftPicker, boardState, rightPicker, moveList]
+      [leftPicker, boardState, rightPicker]
     );
   }
 }
