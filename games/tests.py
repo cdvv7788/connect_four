@@ -1,18 +1,16 @@
 from django.test import TestCase
 import random
 import pickle
-from games.models import (
-    Game,
-    Move,
+from games.board_utils import (
     generate_board,
     parse_board_from_string,
     board_full,
-    translate_move,
-    get_next_position,
     scan,
     find_winner,
-    apply_move,
+    get_next_position,
 )
+from games.move_utils import translate_move, apply_move
+from games.models import Game, Move
 
 # Create your tests here.
 class GameModelTest(TestCase):

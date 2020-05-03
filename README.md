@@ -34,3 +34,12 @@ make compose
 ```
 
 Now you should be able to access the game by going to `http://localhost:9000`
+
+## Running tests
+
+For this you will need to install the project locally (setup virtualenv, install requirements, etc).
+Once you are done with that, run:
+
+```
+make test
+```
