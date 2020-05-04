@@ -27,7 +27,7 @@ class GameConsumer(WebsocketConsumer):
         player = text_data_json["player"] == self.game.player_1
         game = Game.objects.select_for_update().get(id=self.game.id)
         with transaction.atomic():
-            self.game = game.add_move(player, move)
+            self.game = game.change_state_forward(player, move)
 
         async_to_sync(self.channel_layer.group_send)(
             self.game_id, {"type": "game_message", "message": self.game.to_json()}

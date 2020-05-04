@@ -79,37 +79,37 @@ class GameModelTest(TestCase):
         new_index = translate_move(board, True, (3, "L"))
         self.assertTrue(new_index is None)
 
-    def test_add_move(self):
+    def test_change_state_forward(self):
         """
-        add_move/3 persists the data to the database if the player and the move are valid
+        change_state_forward/3 persists the data to the database if the player and the move are valid
         """
-        self.game.add_move(True, (3, "R"))
+        self.game.change_state_forward(True, (3, "R"))
         game = Game.objects.get(id=self.game.pk)
         self.assertTrue(game.python_board[27])
-        self.game.add_move(False, (3, "R"))
+        self.game.change_state_forward(False, (3, "R"))
         game = Game.objects.get(id=self.game.pk)
         self.assertFalse(game.python_board[26])
 
-    def test_add_move_marks_finished_and_winner(self):
+    def test_change_state_forward_marks_finished_and_winner(self):
         """
-        add_move/3 marks the game as finished if there is a winner
+        change_state_forward/3 marks the game as finished if there is a winner
         """
         board = ([True, False] * 25)[:49]
         board[0] = None
         self.game.board = pickle_board(board)
         self.game.save()
-        self.game.add_move(True, (0, "R"))
+        self.game.change_state_forward(True, (0, "R"))
         game = Game.objects.get(id=self.game.pk)
         self.assertTrue(game.finished)
         self.assertTrue(game.winner)
 
-    def test_add_move_prevents_moves_when_finished(self):
+    def test_change_state_forward_prevents_moves_when_finished(self):
         """
-        add_move/3 must not allow new moves after the game has been marked as finished
+        change_state_forward/3 must not allow new moves after the game has been marked as finished
         """
         self.game.status = "FINISHED"
         self.game.save()
-        self.game.add_move(True, (0, "R"))
+        self.game.change_state_forward(True, (0, "R"))
         self.assertIsNone(self.game.python_board[0])
 
     def test_apply_move_raises_key_error(self):

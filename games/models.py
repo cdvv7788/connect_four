@@ -64,7 +64,7 @@ class Game(models.Model):
     """
     Stores the game state.
     Avoid using save() after modifying the board in another layer to keep integrity.
-    Use the add_move method instead to add new player movements.
+    Use the change_state_forward method instead to add new player movements.
     """
 
     player_1 = models.CharField(max_length=30, default="")
@@ -113,9 +113,10 @@ class Game(models.Model):
     def check_finished(self):
         return board_full(self.python_board)
 
-    def add_move(self, player, new_move):
+    def change_state_forward(self, player, new_move):
         """
         Check that the move is valid, and if it is, persist it to the database
+        All the side-effects are contained in this method, so additional changes are performed too
         """
         trans_move = translate_move(self.python_board, player, new_move)
         if trans_move is not None and not self.finished:
