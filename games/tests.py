@@ -13,8 +13,8 @@ from games.board_utils import (
 from games.move_utils import translate_move, apply_move
 from games.models import Game, Move, BOARD_SIZE
 
-# Create your tests here.
-class GameModelTest(TestCase):
+
+class GameLogicTest(TestCase):
     def setUp(self):
         self.game = Game.objects.create()
 
@@ -25,9 +25,9 @@ class GameModelTest(TestCase):
         board = generate_board(BOARD_SIZE)
         self.assertEqual(parse_board_from_string(board).count(None), 49)
 
-    def test_generate_board_with_existing_board(self):
+    def test_pickle_board_with_existing_board(self):
         """
-        generate_board/1 parses board if one is passed, instead of generating a blank one
+        pickle_board/1 parses passed_board
         """
         board = self.game.python_board
         board[0] = True
@@ -78,57 +78,6 @@ class GameModelTest(TestCase):
         board = ([True, False] * 25)[:49]
         new_index = translate_move(board, True, (3, "L"))
         self.assertTrue(new_index is None)
-
-    def test_change_state_forward(self):
-        """
-        change_state_forward/3 persists the data to the database if the player and the move are valid
-        """
-        self.game.change_state_forward(True, (3, "R"))
-        game = Game.objects.get(id=self.game.pk)
-        self.assertTrue(game.python_board[27])
-        self.game.change_state_forward(False, (3, "R"))
-        game = Game.objects.get(id=self.game.pk)
-        self.assertFalse(game.python_board[26])
-
-    def test_change_state_forward_marks_finished_and_winner(self):
-        """
-        change_state_forward/3 marks the game as finished if there is a winner
-        """
-        board = ([True, False] * 25)[:49]
-        board[0] = None
-        self.game.board = pickle_board(board)
-        self.game.save()
-        self.game.change_state_forward(True, (0, "R"))
-        game = Game.objects.get(id=self.game.pk)
-        self.assertTrue(game.finished)
-        self.assertTrue(game.winner)
-
-    def test_change_state_forward_prevents_moves_when_finished(self):
-        """
-        change_state_forward/3 must not allow new moves after the game has been marked as finished
-        """
-        self.game.status = "FINISHED"
-        self.game.save()
-        self.game.change_state_forward(True, (0, "R"))
-        self.assertIsNone(self.game.python_board[0])
-
-    def test_change_state_marks_game_finished_when_no_moves_left(self):
-        """
-        change_state_forward/3 marks the game as finished when there are no movements left to be made
-        """
-        board = """[True, True, False, True, True, False, False,
-                    True, False, True, False, True, False, True,
-                    True, True, False, False, True, False, False,
-                    False, True, False, True, False, True, False,
-                    True, True, False, True, True, False, False,
-                    False, False, True, False, True, True, True,
-                    True, True, False, False, True, False, None]"""
-        board = eval(board)
-        self.game.board = pickle_board(board)
-        self.game.save()
-        self.game.change_state_forward(False, (6, "R"))
-        game = Game.objects.get(id=self.game.id)
-        self.assertEqual(game.status, "FINISHED")
 
     def test_apply_move_raises_key_error(self):
         """
@@ -218,6 +167,62 @@ class GameModelTest(TestCase):
         self.assertEqual(find_winner(board, 31), player_1)
         self.assertEqual(find_winner(board, 39), player_1)
         self.assertEqual(find_winner(board, 43), None)
+
+
+class GameModelTest(TestCase):
+    def setUp(self):
+        self.game = Game.objects.create()
+
+    def test_change_state_forward(self):
+        """
+        change_state_forward/3 persists the data to the database if the player and the move are valid
+        """
+        self.game.change_state_forward(True, (3, "R"))
+        game = Game.objects.get(id=self.game.pk)
+        self.assertTrue(game.python_board[27])
+        self.game.change_state_forward(False, (3, "R"))
+        game = Game.objects.get(id=self.game.pk)
+        self.assertFalse(game.python_board[26])
+
+    def test_change_state_forward_marks_finished_and_winner(self):
+        """
+        change_state_forward/3 marks the game as finished if there is a winner
+        """
+        board = ([True, False] * 25)[:49]
+        board[0] = None
+        self.game.board = pickle_board(board)
+        self.game.save()
+        self.game.change_state_forward(True, (0, "R"))
+        game = Game.objects.get(id=self.game.pk)
+        self.assertTrue(game.finished)
+        self.assertTrue(game.winner)
+
+    def test_change_state_forward_prevents_moves_when_finished(self):
+        """
+        change_state_forward/3 must not allow new moves after the game has been marked as finished
+        """
+        self.game.status = "FINISHED"
+        self.game.save()
+        self.game.change_state_forward(True, (0, "R"))
+        self.assertIsNone(self.game.python_board[0])
+
+    def test_change_state_marks_game_finished_when_no_moves_left(self):
+        """
+        change_state_forward/3 marks the game as finished when there are no movements left to be made
+        """
+        board = """[True, True, False, True, True, False, False,
+                    True, False, True, False, True, False, True,
+                    True, True, False, False, True, False, False,
+                    False, True, False, True, False, True, False,
+                    True, True, False, True, True, False, False,
+                    False, False, True, False, True, True, True,
+                    True, True, False, False, True, False, None]"""
+        board = eval(board)
+        self.game.board = pickle_board(board)
+        self.game.save()
+        self.game.change_state_forward(False, (6, "R"))
+        game = Game.objects.get(id=self.game.id)
+        self.assertEqual(game.status, "FINISHED")
 
 
 class MoveModelTest(TestCase):
