@@ -41,10 +41,12 @@ class Game extends React.Component {
           if (currentPlayer === component.props.username) {
             component.setState({
               message: "It is your turn to make a move!",
+              messageColor: "green",
             });
           } else {
             component.setState({
               message: `Now it is ${currentPlayer}'s turn`,
+              messageColor: "red",
             });
           }
       }
@@ -57,7 +59,11 @@ class Game extends React.Component {
   render() {
     const message = React.createElement(
       Message,
-      { message: this.state.message, key: "message" },
+      {
+        message: this.state.message,
+        messageColor: this.state.messageColor,
+        key: "message",
+      },
       null
     );
     const board = React.createElement(
@@ -72,7 +78,11 @@ class Game extends React.Component {
     );
     const currentPlayer = React.createElement(
       Message,
-      { message: `Playing as: ${this.props.username}`, key: "current-player" },
+      {
+        message: `Playing as: ${this.props.username}`,
+        key: "current-player",
+        messageColor: this.props.messageColor,
+      },
       null
     );
     const moveList = React.createElement(

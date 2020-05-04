@@ -34,10 +34,10 @@ class MoveList extends React.Component {
       "Review Moves"
     );
     //options.unshift(title);
-    React.createElement("div", {}, title);
+    React.createElement("div", { key: "move-list-title" }, title);
     const items = React.createElement(
       "div",
-      { className: "flex justify-center" },
+      { className: "flex justify-center", key: "move-list-item-container" },
       React.createElement(
         "div",
         {
