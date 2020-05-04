@@ -123,12 +123,12 @@ class Game(models.Model):
             board = self.python_board
             board[trans_move] = player
             winner = find_winner(board, trans_move)
+            self.board = pickle_board(board)
             if winner is None:
                 self.status = "FINISHED" if self.check_finished() else self.status
             else:
                 self.winner = winner
                 self.status = "FINISHED"
-            self.board = pickle_board(board)
 
             # Save move and board
             player_name = self.player_1 if player else self.player_2

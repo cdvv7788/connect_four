@@ -112,6 +112,24 @@ class GameModelTest(TestCase):
         self.game.change_state_forward(True, (0, "R"))
         self.assertIsNone(self.game.python_board[0])
 
+    def test_change_state_marks_game_finished_when_no_moves_left(self):
+        """
+        change_state_forward/3 marks the game as finished when there are no movements left to be made
+        """
+        board = """[True, True, False, True, True, False, False,
+                    True, False, True, False, True, False, True,
+                    True, True, False, False, True, False, False,
+                    False, True, False, True, False, True, False,
+                    True, True, False, True, True, False, False,
+                    False, False, True, False, True, True, True,
+                    True, True, False, False, True, False, None]"""
+        board = eval(board)
+        self.game.board = pickle_board(board)
+        self.game.save()
+        self.game.change_state_forward(False, (6, "R"))
+        game = Game.objects.get(id=self.game.id)
+        self.assertEqual(game.status, "FINISHED")
+
     def test_apply_move_raises_key_error(self):
         """
         When the movement is not possible, this method will raise a TypeError
