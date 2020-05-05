@@ -41,9 +41,7 @@ def board_full(board):
     Checks that all of the positions are filled
     board: python_parsed board
     """
-    if None in board:
-        return False
-    return True
+    return not None in board
 
 
 def next_turn(board):
