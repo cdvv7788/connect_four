@@ -15,8 +15,10 @@ Including another URLconf
 """
 from django.urls import path
 from games.views import PickUser, GameView
+from presence.views import LobbyView
 
 urlpatterns = [
     path("", PickUser.as_view(), name="home"),
     path("play/<int:game_id>/", GameView.as_view(), name="game"),
+    path("lobby/", LobbyView.as_view(), name="lobby"),
 ]

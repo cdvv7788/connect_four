@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block "content" %}
+asda
+<div id="users">
+</div>
+
+<script>
+    function createWS() {
+        return new WebSocket(
+            "ws://" +
+            window.location.host +
+            "/ws/lobby/"
+        );
+    }
+
+    var socket = createWS();
+    socket.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+
+        const elem = document.getElementById('users');
+        elem.innerHTML = data.users.join('<br/>');
+
+    }
+
+</script>
+{% endblock "content" %}
