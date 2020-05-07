@@ -43,3 +43,9 @@ Once you are done with that, run:
 ```
 make test
 ```
+
+## Work in progress
+
+The current branch (`feature/replay`) has an initial version (functional) of a replayer. When the user clicks any item in review move, a board with the state of the board up to that moment is shown.
+
+Additionally, there is some initial work on presence for a lobby. This was added to a new app named `presence`. Currently it still needs some more work, because it adds/removes user depending on `connect` and `disconnect` methods of the `LobbyConsumer` only. This is not reliable. A new field (`timestamp`) needs to be added to the model, it has to be updated every now and then, and there must be a background job deleting stale `Presence` objects.
